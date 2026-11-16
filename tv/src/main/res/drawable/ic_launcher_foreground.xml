@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- tuner dial: dark disc, tick ring, orange needle -->
+    <path android:fillColor="#1C1B19" android:pathData="M54,54m-26,0a26,26 0,1 1,52 0a26,26 0,1 1,-52 0"/>
+    <path android:strokeColor="#F4F2EE" android:strokeWidth="2" android:strokeLineCap="round"
+        android:pathData="M54,34L54,38M54,70L54,74M34,54L38,54M70,54L74,54"/>
+    <path android:strokeColor="#D9500A" android:strokeWidth="4" android:strokeLineCap="round"
+        android:pathData="M54,54L64,40"/>
+    <path android:fillColor="#D9500A" android:pathData="M54,54m-4,0a4,4 0,1 1,8 0a4,4 0,1 1,-8 0"/>
+</vector>

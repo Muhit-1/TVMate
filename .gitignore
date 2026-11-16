@@ -1,1 +1,14 @@
 TV-Remote-App-Plan.docx
+CLAUDE.md
+.claude/
+
+# Android / Gradle
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+.kotlin/
+*.apk
+*.aab
+dist/

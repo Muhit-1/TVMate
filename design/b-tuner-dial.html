@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zap — Design B: Tuner Dial</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ch:#DAD8D2;--sh:#E9E7E1;--ink:#1B1A18;--or:#E8590C;--mut:#7A766E;--line:#C4C1B9;--face:#F3F1EC;--grn:#3E7D4F;
+--d:'Archivo',Arial,sans-serif;--m:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+body{background:#B9B6AE;color:var(--ink);font:500 14px/1.35 var(--d);padding:40px 28px 80px}
+h1{font:900 54px/1 var(--d);font-stretch:62%;letter-spacing:.01em;text-transform:uppercase}
+.lead{font:400 12px var(--m);color:#3b3934;margin:10px 0 30px;max-width:660px}
+h2{font:500 11px var(--m);text-transform:uppercase;letter-spacing:.2em;margin:38px 0 16px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:28px}
+figure{display:flex;flex-direction:column;gap:10px}figcaption{font:400 11px var(--m);text-transform:uppercase;letter-spacing:.1em;color:#3b3934}
+.ph{width:300px;height:620px;background:var(--ch);border-radius:30px;border:8px solid var(--ink);overflow:hidden;display:flex;flex-direction:column}
+.top{padding:18px 18px 8px;display:flex;justify-content:space-between;align-items:flex-end}
+.top b{font:900 30px/1 var(--d);font-stretch:62%;text-transform:uppercase}
+.led{font:500 10px var(--m);display:flex;gap:6px;align-items:center;text-transform:uppercase}
+.led:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--or);box-shadow:0 0 6px var(--or)}.led.g:before{background:var(--grn);box-shadow:0 0 6px var(--grn)}.led.off:before{background:#999;box-shadow:none}
+.body{flex:1;padding:6px 18px 12px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.nav{display:flex;gap:8px;padding:10px 14px 14px;background:var(--sh);border-top:1px solid var(--line)}
+.nav span{flex:1;text-align:center;padding:9px 0;border-radius:99px;font:500 10px var(--m);text-transform:uppercase;border:1.5px solid var(--line);color:var(--mut)}
+.nav .on{background:var(--ink);border-color:var(--ink);color:#fff}
+.win{background:var(--face);border-radius:12px;padding:10px 12px;box-shadow:inset 0 2px 4px #0002;font:400 12px var(--m);color:var(--mut)}
+.sel{display:flex;gap:6px;flex-wrap:wrap}
+.sel span{font:500 10.5px var(--m);padding:6px 10px;border-radius:99px;background:var(--sh);box-shadow:0 1px 0 #fff8 inset,0 1px 2px #0003;text-transform:uppercase}
+.sel .on{background:var(--ink);color:#fff}
+.dial{background:var(--ink);border-radius:12px;padding:10px 12px 8px;color:#fff;position:relative}
+.dial .sc{height:26px;background:repeating-linear-gradient(90deg,#fff7 0 1px,transparent 1px 8px);mask:linear-gradient(transparent 40%,#000 40%)}
+.dial .sc.l{background:repeating-linear-gradient(90deg,#fff 0 1px,transparent 1px 40px)}
+.dial:after{content:"";position:absolute;left:55%;top:6px;bottom:6px;width:2px;background:var(--or)}
+.dial small{display:flex;justify-content:space-between;font:400 9px var(--m);opacity:.7;margin-top:4px}
+.it{display:flex;align-items:center;gap:11px;padding:9px 11px;background:var(--sh);border-radius:12px;box-shadow:0 1px 0 #fff8 inset,0 1px 3px #0003}
+.it .no{font:500 11px var(--m);width:30px;color:var(--mut)}
+.it p{flex:1;min-width:0}.it strong{display:block;font:800 15px/1.1 var(--d)}.it small{font:400 10px var(--m);color:var(--mut)}
+.it .pl{width:32px;height:32px;border-radius:50%;background:var(--or);color:#fff;display:grid;place-items:center;font-size:11px;flex:none}
+.tag{font:500 9px var(--m);padding:2px 6px;border-radius:4px;border:1px solid var(--mut);text-transform:uppercase}
+.btn{background:var(--ink);color:#fff;border-radius:99px;padding:13px;text-align:center;font:800 13px var(--d);text-transform:uppercase;letter-spacing:.05em}
+.btn.or{background:var(--or)}.btn.o{background:none;color:var(--ink);border:1.5px solid var(--ink)}
+.lbl{font:500 10px var(--m);text-transform:uppercase;letter-spacing:.14em;color:var(--mut);margin-top:4px}
+/* hardware */
+.rm{background:var(--sh);border-radius:22px;padding:14px;box-shadow:0 1px 0 #fff8 inset,0 2px 6px #0003;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ring{width:176px;height:176px;border-radius:50%;background:var(--face);box-shadow:inset 0 3px 8px #0003,0 1px 0 #fff;position:relative}
+.ring i{position:absolute;font-style:normal;font-size:15px;width:36px;height:36px;display:grid;place-items:center;color:var(--ink)}
+.ring .u{top:8px;left:70px}.ring .d{bottom:8px;left:70px}.ring .l{left:8px;top:70px}.ring .r{right:8px;top:70px}
+.ring .ok{left:56px;top:56px;width:64px;height:64px;border-radius:50%;background:var(--or);color:#fff;font:900 18px var(--d);box-shadow:0 2px 0 #a63e05,0 4px 8px #0004}
+.kn{display:flex;gap:10px;width:100%}
+.kb{flex:1;background:var(--face);border-radius:12px;padding:11px 0;text-align:center;font:500 11px var(--m);text-transform:uppercase;box-shadow:0 2px 0 #aaa7,0 1px 0 #fff inset}
+.kb.pw{background:var(--ink);color:var(--or)}
+.knob{width:84px;height:84px;border-radius:50%;background:conic-gradient(from 200deg,#2a2926,#555,#2a2926,#555,#2a2926);position:relative;box-shadow:0 3px 8px #0006}
+.knob:after{content:"";position:absolute;left:50%;top:7px;width:4px;height:20px;margin-left:-2px;background:var(--or);border-radius:2px;transform-origin:50% 35px;transform:rotate(40deg)}
+.vrow{display:flex;gap:14px;align-items:center;justify-content:space-between;width:100%}
+.pin{display:flex;gap:7px;justify-content:center}
+.pin span{width:38px;height:52px;background:var(--face);border-radius:8px;box-shadow:inset 0 2px 4px #0003;display:grid;place-items:center;font:500 22px var(--m)}
+.pin .e{outline:2px solid var(--or)}
+.set{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--sh);border-radius:12px;font-size:14px;font-weight:700}
+.set small{display:block;font:400 10px var(--m);color:var(--mut);font-weight:400;max-width:180px}
+.sw{width:42px;height:22px;border-radius:99px;background:#8a867e;position:relative;flex:none}.sw:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+.sw.on{background:var(--or)}.sw.on:after{left:23px}
+.note{border-left:4px solid var(--or);background:var(--sh);padding:10px 12px;border-radius:0 10px 10px 0}
+.note b{display:block;font-weight:800}.note small{font:400 11px var(--m);color:#444}
+.big{background:var(--ink);border-radius:14px;padding:16px;color:#fff;text-align:center}
+.big b{font:900 34px/1 var(--d);font-stretch:62%;text-transform:uppercase;display:block}.big small{font:400 10px var(--m);opacity:.7}
+.tr{display:flex;justify-content:space-around;align-items:center}
+.tr span{width:48px;height:48px;border-radius:50%;background:var(--sh);box-shadow:0 2px 0 #aaa7;display:grid;place-items:center}.tr .pp{width:68px;height:68px;background:var(--or);color:#fff}
+/* TV */
+.tv{width:560px;aspect-ratio:16/9;background:#161513;border-radius:10px;border:6px solid var(--ink);color:#fff;position:relative;overflow:hidden}
+.tv .vid{position:absolute;inset:0;background:linear-gradient(135deg,#4b5a6a,#1a1c20)}
+.tv .ov{position:absolute;left:18px;right:18px;bottom:16px;background:var(--ink);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:14px}
+.ov .no{font:900 30px var(--d);font-stretch:62%;color:var(--or)}.ov b{font:800 17px var(--d);display:block}.ov small{font:400 10px var(--m);opacity:.75}
+.tv .dialbig{position:absolute;left:0;right:0;bottom:0;height:62px;background:#0e0d0c}
+.tvl{position:absolute;inset:0;padding:18px 22px;display:flex;flex-direction:column;gap:7px;background:#201f1c}
+.tvl h4{font:900 20px var(--d);font-stretch:62%;text-transform:uppercase;margin-bottom:4px}
+.tvl .r{display:flex;gap:12px;align-items:center;padding:7px 12px;border-radius:10px;font:800 14px var(--d);background:#2c2b27}
+.tvl .r span{font:500 11px var(--m);color:#aaa;width:30px}.tvl .r small{margin-left:auto;font:400 9px var(--m);opacity:.7}
+.tvl .r.f{background:var(--or);outline:3px solid #fff;outline-offset:1px}.tvl .r.f span{color:#fff}
+.rad{position:absolute;inset:0;background:#1b1a18;display:flex;flex-direction:column;justify-content:center;padding:0 36px;gap:14px}
+.rad .f{font:900 62px/1 var(--d);font-stretch:62%;color:var(--or)}.rad b{font:800 24px var(--d)}.rad small{font:400 11px var(--m);opacity:.75}
+.dis{max-width:660px;font:400 11px var(--m);color:#3b3934;margin-top:28px}
+</style></head><body>
+<h1>Zap</h1>
+<p class="lead">Design B — “Tuner Dial”. A 1960s tabletop radio: matte plastic, one orange accent, a real frequency scale. Every channel has a number and a place on the dial, so browsing feels like tuning. Name is a placeholder.</p>
+
+<h2>Phone</h2>
+<div class="row">
+<figure><div class="ph"><div class="top"><b>Find TV</b><span class="led">Scanning</span></div>
+<div class="body"><div class="dial"><div class="sc"></div><div class="sc l" style="margin-top:-26px"></div><small><span>192.168.1.1</span><span>.254</span></small></div>
+<p class="lbl">Found on this network</p>
+<div class="it"><span class="no">01</span><p><strong>Living room TV</strong><small>Google TV · 192.168.1.24</small></p><span class="tag">Paired</span></div>
+<div class="it"><span class="no">02</span><p><strong>Bedroom Android TV</strong><small>Android TV · 192.168.1.31</small></p><span class="tag">Pair</span></div>
+<div class="it"><span class="no">03</span><p><strong>Fire TV Stick</strong><small>Fire TV · 192.168.1.40</small></p><span class="tag">Pair</span></div>
+<div class="btn o" style="margin-top:auto">Check Local network access</div></div></div><figcaption>1 · Find TV</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Pair</b><span class="led">Living room TV</span></div>
+<div class="body"><p style="font-size:15px;font-weight:500">Enter the code shown on your TV. You only do this once; Zap remembers it.</p>
+<div class="pin"><span>4</span><span>F</span><span>9</span><span class="e">A</span><span></span><span></span></div>
+<p class="lbl" style="text-align:center">Waiting for the TV to confirm…</p>
+<div class="btn or" style="margin-top:auto">Pair</div><div class="btn o">Cancel</div></div></div><figcaption>2 · PIN pairing</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Remote</b><span class="led g">Living room</span></div>
+<div class="body"><div class="rm"><div class="ring"><i class="u">▲</i><i class="d">▼</i><i class="l">◀</i><i class="r">▶</i><i class="ok">OK</i></div>
+<div class="kn"><div class="kb">↩ Back</div><div class="kb">⌂ Home</div><div class="kb pw">⏻</div></div>
+<div class="vrow"><div class="kb" style="flex:none;width:74px">Mute</div><div class="knob"></div><div style="text-align:center;font:500 10px var(--m);width:74px">VOL<br><b style="font-size:20px">32</b></div></div></div>
+<div class="btn o">Type on TV</div></div>
+<div class="nav"><span class="on">Remote</span><span>TV</span><span>Radio</span><span>Saved</span></div></div><figcaption>3 · Remote</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Live TV</b><span class="led">14,210</span></div>
+<div class="body"><div class="win">Search channels</div>
+<div class="sel"><span class="on">Country</span><span>Category</span><span>Language</span></div>
+<div class="it"><span class="no">101</span><p><strong>France 24 English</strong><small>FR · News · HD</small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">102</span><p><strong>DW English</strong><small>DE · News</small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">103</span><p><strong>NASA TV</strong><small>US · Science <span class="tag">Not 24/7</span></small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">104</span><p><strong>Al Jazeera English</strong><small>QA · News <span class="tag">Geo-blocked</span></small></p><span class="pl">▶</span></div></div>
+<div class="nav"><span>Remote</span><span class="on">TV</span><span>Radio</span><span>Saved</span></div></div><figcaption>4 · Browse TV</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Radio</b><span class="led">38,640</span></div>
+<div class="body"><div class="dial"><div class="sc"></div><div class="sc l" style="margin-top:-26px"></div><small><span>88</span><span>98</span><span>108 MHz</span></small></div>
+<div class="win">Search stations</div><div class="sel"><span>Country</span><span>Language</span><span class="on">Jazz</span></div>
+<div class="it"><span class="no">88.1</span><p><strong>SomaFM Groove Salad</strong><small>US · Ambient · 128k</small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">93.5</span><p><strong>Radio Paradise</strong><small>US · Eclectic · 320k</small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">96.2</span><p><strong>KEXP 90.3</strong><small>US · Indie · 128k</small></p><span class="pl">▶</span></div></div>
+<div class="nav"><span>Remote</span><span>TV</span><span class="on">Radio</span><span>Saved</span></div></div><figcaption>5 · Browse radio</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Saved</b><span class="tag">Edit</span></div>
+<div class="body"><p class="lbl">Presets</p>
+<div class="it"><span class="no">P1</span><p><strong>France 24 English</strong><small>TV · favorite</small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">P2</span><p><strong>SomaFM Groove Salad</strong><small>Radio · favorite</small></p><span class="pl">▶</span></div>
+<p class="lbl">Recent</p>
+<div class="it"><span class="no">–</span><p><strong>NASA TV</strong><small>TV · today 21:10</small></p><span class="pl">▶</span></div>
+<div class="it"><span class="no">–</span><p><strong>BBC World Service</strong><small>Radio · yesterday</small></p><span class="pl">▶</span></div></div>
+<div class="nav"><span>Remote</span><span>TV</span><span>Radio</span><span class="on">Saved</span></div></div><figcaption>6 · Favorites + recent</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Playing</b><span class="led g">On Living room</span></div>
+<div class="body"><div class="big"><small>CHANNEL 101</small><b>France 24 English</b><small>Live · News · stream 1 of 2</small></div>
+<div class="tr"><span>⏮</span><span class="pp">⏸</span><span>⏭</span></div>
+<div class="rm"><div class="vrow"><div class="kb" style="flex:none;width:70px">Mute</div><div class="knob" style="width:70px;height:70px"></div><div style="text-align:center;font:500 10px var(--m);width:70px">VOL<br><b style="font-size:18px">32</b></div></div></div>
+<div class="btn o" style="margin-top:auto">Play on this phone instead</div></div>
+<div class="nav"><span>Remote</span><span class="on">TV</span><span>Radio</span><span>Saved</span></div></div><figcaption>7 · Control playback</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Settings</b></div>
+<div class="body">
+<div class="set"><span>Living room TV<small>Paired · manage TVs</small></span><span class="tag">Change</span></div>
+<div class="set"><span>Show geo-blocked<small>May not play in your country</small></span><span class="sw"></span></div>
+<div class="set"><span>Show not 24/7<small>Channels that go off-air</small></span><span class="sw on"></span></div>
+<div class="set"><span>Hide adult channels<small>On by default</small></span><span class="sw on"></span></div>
+<div class="set"><span>Refresh lists daily<small>Last update today 06:00</small></span><span class="sw on"></span></div>
+<div class="set"><span>Hidden channels<small>12 hidden by you</small></span><span class="tag">Review</span></div>
+<p class="dis" style="margin:auto 0 0;font-size:9.5px">Zap carries no channels of its own. It lists public streams from iptv-org and Radio Browser. Takedown contact: takedown@example.com</p></div></div><figcaption>8 · Settings + disclaimer</figcaption></figure>
+
+<figure><div class="ph"><div class="top"><b>Remote</b><span class="led off">Offline</span></div>
+<div class="body"><div class="note" style="border-color:#c0392b"><b>Can’t reach Living room TV</b><small>It may be off or on a different Wi-Fi. Zap tries again every 5 seconds.</small></div>
+<p class="lbl" style="margin-top:12px">Playback problem</p>
+<div class="note"><b>This stream stopped</b><small>Trying stream 2 of 2 for France 24 English…</small></div>
+<div class="btn o">Hide this channel</div><div class="btn or" style="margin-top:auto">Try again now</div></div></div><figcaption>9 · Offline + dead stream</figcaption></figure>
+</div>
+
+<h2>TV app</h2>
+<div class="row">
+<figure><div class="tv"><div class="vid"></div><div class="ov"><span class="no">101</span><div><b>France 24 English</b><small>Live · News · sent from Sam’s phone</small></div><small style="margin-left:auto">● LIVE</small></div></div><figcaption>T1 · Full-screen player</figcaption></figure>
+<figure><div class="tv"><div class="tvl"><h4>Live TV · 14,210 channels</h4>
+<div class="r"><span>100</span>DW English<small>DE · News</small></div>
+<div class="r f"><span>101</span>France 24 English<small>FR · News</small></div>
+<div class="r"><span>102</span>NASA TV<small>US · Not 24/7</small></div>
+<div class="r"><span>103</span>Al Jazeera English<small>QA · News</small></div>
+<div class="r"><span>104</span>Euronews English<small>FR · News</small></div></div></div><figcaption>T2 · Channel list (D-pad focus)</figcaption></figure>
+<figure><div class="tv"><div class="rad"><div class="f">88.1</div><div><b>SomaFM Groove Salad</b><br><small>Ambient · 128 kbps · sent from Sam’s phone</small></div><div class="dial" style="width:100%"><div class="sc"></div><div class="sc l" style="margin-top:-26px"></div></div></div></div><figcaption>T3 · Radio now playing</figcaption></figure>
+<figure><div class="tv"><div class="vid"></div><div class="ov" style="inset:auto 18px 16px;"><span class="no" style="color:#fff">⚠</span><div><b>This stream stopped</b><small>Trying another stream for France 24 English…</small></div></div></div><figcaption>T4 · Dead-stream fallback</figcaption></figure>
+</div>
+<p class="dis">Pairing PIN screen on the TV: large 6-character code in orange on charcoal, “Enter this code in Zap on your phone.”</p>
+</body></html>

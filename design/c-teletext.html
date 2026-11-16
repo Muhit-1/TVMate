@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zap — Design C: Teletext</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--k:#000;--w:#fff;--r:#ff3b30;--g:#2bd96b;--y:#ffe600;--b:#2f4bff;--m:#ff3cf0;--c:#19e6e6;--dim:#9aa0b8;
+--d:'VT323',ui-monospace,monospace;--s:'Space Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0}
+body{background:#2a2a35;color:var(--w);font:400 14px/1.3 var(--s);padding:40px 28px 80px}
+h1{font:400 72px/.9 var(--d);color:var(--y);letter-spacing:.02em}h1 span{background:var(--r);color:var(--w);padding:0 8px}
+.lead{font:400 12px var(--s);color:var(--dim);margin:12px 0 30px;max-width:660px}
+h2{font:400 22px var(--d);background:var(--b);color:var(--w);padding:2px 10px;display:inline-block;margin:36px 0 16px;letter-spacing:.05em}
+.row{display:flex;flex-wrap:wrap;gap:28px}
+figure{display:flex;flex-direction:column;gap:10px}figcaption{font:400 11px var(--s);color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.ph{width:300px;height:620px;background:var(--k);border-radius:26px;border:8px solid #111;outline:2px solid #555;overflow:hidden;display:flex;flex-direction:column;font:400 19px/1.15 var(--d)}
+.hd{display:flex;gap:8px;padding:12px 12px 0;font:400 18px var(--d);color:var(--w);flex:none}
+.hd b{color:var(--w);font-weight:400}.hd .p{background:var(--w);color:var(--k);padding:0 6px}.hd .t{margin-left:auto;color:var(--y)}
+.ttl{margin:8px 0 0;background:var(--b);color:var(--w);font:400 34px/1 var(--d);padding:6px 12px 4px;letter-spacing:.03em;flex:none}
+.ttl.r{background:var(--r)}.ttl.g{background:var(--g);color:var(--k)}.ttl.y{background:var(--y);color:var(--k)}.ttl.m{background:var(--m);color:var(--k)}.ttl.c{background:var(--c);color:var(--k)}
+.body{flex:1;overflow:hidden;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.fast{display:grid;grid-template-columns:repeat(4,1fr);flex:none}
+.fast span{text-align:center;padding:7px 0 6px;font:400 17px var(--d);color:var(--k);text-transform:uppercase}
+.fast .a{background:var(--r)}.fast .b{background:var(--g)}.fast .c{background:var(--y)}.fast .d{background:var(--c)}
+.fast .on{box-shadow:inset 0 -5px 0 var(--k)}
+.ln{display:flex;gap:10px;align-items:baseline}.ln .n{color:var(--y);min-width:36px}.ln .x{flex:1;color:var(--w)}.ln .z{color:var(--c);font-size:16px}
+.ln.foc{background:var(--w);color:var(--k)}.ln.foc .n,.ln.foc .x,.ln.foc .z{color:var(--k)}
+.sub{font:400 12px var(--s);color:var(--dim);margin:-1px 0 5px 46px}
+.t-g{color:var(--g)}.t-y{color:var(--y)}.t-c{color:var(--c)}.t-m{color:var(--m)}.t-r{color:var(--r)}.dim{color:var(--dim)}
+.in{background:var(--w);color:var(--k);padding:4px 8px;font:400 20px var(--d)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips span{font:400 17px var(--d);padding:0 8px;border:2px solid var(--c);color:var(--c)}.chips .on{background:var(--c);color:var(--k)}
+.big{font:400 52px/.9 var(--d);letter-spacing:.04em}
+.pin{display:flex;gap:6px;margin:6px 0}.pin span{width:36px;height:52px;background:var(--w);color:var(--k);display:grid;place-items:center;font:400 40px var(--d)}.pin .e{background:var(--y)}.pin .z{background:var(--b)}
+.pad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,52px);gap:6px;justify-content:center;margin:6px 0}
+.pad span{background:var(--b);display:grid;place-items:center;font-size:24px}.pad .ok{background:var(--y);color:var(--k);font-size:26px}.pad .e{background:none}
+.kx{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.kx span{text-align:center;padding:4px 0;background:var(--b);font-size:20px}.kx .pw{background:var(--r)}
+.vl{display:flex;gap:6px}.vl span{flex:1;text-align:center;padding:4px 0;background:var(--m);color:var(--k);font-size:22px}
+.bars{display:flex;height:8px}.bars i{flex:1}
+.tg{display:flex;justify-content:space-between;align-items:baseline}.tg .v{padding:0 6px}.tg .on{background:var(--g);color:var(--k)}.tg .off{background:var(--r);color:var(--k)}
+.msg{border:2px solid var(--r);padding:6px 8px}.msg.y{border-color:var(--y)}
+.btnk{background:var(--y);color:var(--k);text-align:center;font-size:24px;padding:3px}.btnk.o{background:none;border:2px solid var(--w);color:var(--w)}
+.prog{height:10px;background:#333}.prog i{display:block;height:100%;width:60%;background:var(--g)}
+/* TV */
+.tv{width:560px;aspect-ratio:16/9;background:var(--k);border-radius:8px;border:6px solid #111;outline:2px solid #555;position:relative;overflow:hidden;font:400 22px/1.15 var(--d)}
+.tv .vid{position:absolute;inset:0;background:linear-gradient(135deg,#223,#0a0a12 60%,#1a2a55)}
+.tv .lw{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:stretch}
+.tv .lw .p{background:var(--y);color:var(--k);font-size:40px;padding:2px 14px}.tv .lw .nm{background:var(--b);flex:1;padding:6px 14px;font-size:26px}.tv .lw small{display:block;font:400 11px var(--s);color:var(--c)}
+.tv .lw .l{background:var(--r);padding:0 12px;display:grid;place-items:center;font-size:22px}
+.tp{position:absolute;inset:0;padding:12px 18px;display:flex;flex-direction:column;gap:2px}
+.tp .h{display:flex;gap:12px;font-size:20px}.tp .h .p{background:var(--w);color:var(--k);padding:0 6px}.tp .h .t{margin-left:auto;color:var(--y)}
+.tp .tt{background:var(--b);font-size:34px;padding:2px 12px;margin:4px 0 6px}
+.tp .ln{padding:1px 8px;font-size:24px}.tp .ln .n{font-size:24px}
+.tp .fast{margin-top:auto}
+.dis{max-width:660px;font:400 11px var(--s);color:var(--dim);margin-top:28px}
+</style></head><body>
+<h1><span>ZAP</span> 100</h1>
+<p class="lead">Design C — “Teletext”. The family’s other screen, from 1985: eight colours, a block font, and page numbers. Channels are pages (P101 = France 24), the four coloured keys at the bottom are real Fastext navigation. The risk: it’s nostalgic and loud, but it’s the only design where the TV app and phone look like the same product. Name is a placeholder.</p>
+
+<h2>Phone</h2>
+<div class="row">
+<figure><div class="ph"><div class="hd"><span class="p">P100</span><b>ZAP</b><span class="t">06 Nov 07:41</span></div>
+<div class="ttl">FIND YOUR TV</div>
+<div class="body"><div class="bars"><i style="background:var(--w)"></i><i style="background:var(--y)"></i><i style="background:var(--c)"></i><i style="background:var(--g)"></i><i style="background:var(--m)"></i><i style="background:var(--r)"></i><i style="background:var(--b)"></i></div>
+<span class="t-c">SEARCHING WI-FI…</span>
+<div class="ln"><span class="n">1</span><span class="x">Living room TV</span><span class="t-g">PAIRED</span></div><div class="sub">Google TV · 192.168.1.24</div>
+<div class="ln"><span class="n">2</span><span class="x">Bedroom Android TV</span><span class="z">PAIR</span></div><div class="sub">Android TV · 192.168.1.31</div>
+<div class="ln"><span class="n">3</span><span class="x">Fire TV Stick</span><span class="z">PAIR</span></div><div class="sub">Fire TV · 192.168.1.40</div>
+<div style="margin-top:auto" class="btnk o">CHECK LOCAL NETWORK ACCESS</div></div>
+<div class="fast"><span class="a on">Find</span><span class="b">Remote</span><span class="c">TV</span><span class="d">Radio</span></div></div><figcaption>1 · Find TV</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P110</span><b>PAIR</b><span class="t">Living room TV</span></div>
+<div class="ttl m">ENTER THE CODE</div>
+<div class="body"><span>Type the code shown on your TV.<br><span class="dim">You only do this once.</span></span>
+<div class="pin"><span>4</span><span>F</span><span>9</span><span class="e">A</span><span class="z"></span><span class="z"></span></div>
+<span class="t-y">WAITING FOR THE TV TO CONFIRM…</span>
+<div style="margin-top:auto" class="btnk">PAIR</div><div class="btnk o">CANCEL</div></div>
+<div class="fast"><span class="a on">Find</span><span class="b">Remote</span><span class="c">TV</span><span class="d">Radio</span></div></div><figcaption>2 · PIN pairing</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P120</span><b>REMOTE</b><span class="t t-g">● Living room</span></div>
+<div class="ttl g">REMOTE</div>
+<div class="body"><div class="pad"><span class="e"></span><span>▲</span><span class="e"></span><span>◀</span><span class="ok">OK</span><span>▶</span><span class="e"></span><span>▼</span><span class="e"></span></div>
+<div class="kx"><span>BACK</span><span>HOME</span><span class="pw">POWER</span></div>
+<div class="vl"><span>VOL −</span><span>MUTE</span><span>VOL +</span></div>
+<div style="margin-top:auto" class="btnk o">TYPE ON TV</div></div>
+<div class="fast"><span class="a">Find</span><span class="b on">Remote</span><span class="c">TV</span><span class="d">Radio</span></div></div><figcaption>3 · Remote</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P200</span><b>LIVE TV</b><span class="t">14,210</span></div>
+<div class="ttl y">LIVE TV</div>
+<div class="body"><div class="in">Search channels_</div>
+<div class="chips"><span class="on">Country</span><span>Category</span><span>Language</span></div>
+<div class="ln"><span class="n">201</span><span class="x">France 24 English</span><span class="z">NEWS</span></div>
+<div class="ln"><span class="n">202</span><span class="x">DW English</span><span class="z">NEWS</span></div>
+<div class="ln"><span class="n">203</span><span class="x">NASA TV</span><span class="t-y">NOT 24/7</span></div>
+<div class="ln"><span class="n">204</span><span class="x">Al Jazeera English</span><span class="t-r">GEO</span></div>
+<div class="ln"><span class="n">205</span><span class="x">Euronews English</span><span class="z">NEWS</span></div></div>
+<div class="fast"><span class="a">Find</span><span class="b">Remote</span><span class="c on">TV</span><span class="d">Radio</span></div></div><figcaption>4 · Browse TV</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P300</span><b>RADIO</b><span class="t">38,640</span></div>
+<div class="ttl c">RADIO</div>
+<div class="body"><div class="in">Search stations_</div>
+<div class="chips"><span>Country</span><span>Language</span><span class="on">Jazz</span></div>
+<div class="ln"><span class="n">301</span><span class="x">SomaFM Groove Salad</span><span class="z">128k</span></div>
+<div class="ln"><span class="n">302</span><span class="x">Radio Paradise</span><span class="z">320k</span></div>
+<div class="ln"><span class="n">303</span><span class="x">KEXP 90.3</span><span class="z">128k</span></div>
+<div class="ln"><span class="n">304</span><span class="x">BBC World Service</span><span class="z">64k</span></div></div>
+<div class="fast"><span class="a">Find</span><span class="b">Remote</span><span class="c">TV</span><span class="d on">Radio</span></div></div><figcaption>5 · Browse radio</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P400</span><b>SAVED</b><span class="t">Edit</span></div>
+<div class="ttl r">FAVORITES</div>
+<div class="body"><div class="ln"><span class="n">201</span><span class="x">France 24 English</span><span class="t-y">★</span></div>
+<div class="ln"><span class="n">301</span><span class="x">SomaFM Groove Salad</span><span class="t-y">★</span></div>
+<div class="ttl" style="margin:8px -12px 4px;font-size:26px">RECENT</div>
+<div class="ln"><span class="n">203</span><span class="x">NASA TV</span><span class="dim">today</span></div>
+<div class="ln"><span class="n">304</span><span class="x">BBC World Service</span><span class="dim">yest.</span></div></div>
+<div class="fast"><span class="a">Find</span><span class="b">Remote</span><span class="c">TV</span><span class="d">Radio</span></div></div><figcaption>6 · Favorites + recent</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P201</span><b>PLAYING</b><span class="t t-g">● On Living room</span></div>
+<div class="ttl">FRANCE 24 ENGLISH</div>
+<div class="body"><span class="t-c">LIVE · NEWS · STREAM 1 OF 2</span>
+<div class="big t-y" style="margin:10px 0">201</div>
+<div class="vl" style="margin:8px 0"><span style="background:var(--b);color:var(--w)">◀◀ PREV</span><span style="background:var(--y)">❚❚ PAUSE</span><span style="background:var(--b);color:var(--w)">NEXT ▶▶</span></div>
+<span>TV VOLUME 32</span><div class="prog"><i></i></div>
+<div style="margin-top:auto" class="btnk o">PLAY ON THIS PHONE</div></div>
+<div class="fast"><span class="a">Find</span><span class="b">Remote</span><span class="c on">TV</span><span class="d">Radio</span></div></div><figcaption>7 · Control playback</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P500</span><b>SETTINGS</b></div>
+<div class="ttl m">SETTINGS</div>
+<div class="body"><div class="tg"><span>Living room TV</span><span class="t-c">CHANGE</span></div>
+<div class="tg"><span>Show geo-blocked</span><span class="v off">OFF</span></div>
+<div class="tg"><span>Show not 24/7</span><span class="v on">ON</span></div>
+<div class="tg"><span>Hide adult channels</span><span class="v on">ON</span></div>
+<div class="tg"><span>Refresh lists daily</span><span class="v on">ON</span></div>
+<div class="tg"><span>Hidden channels (12)</span><span class="t-c">REVIEW</span></div>
+<div class="dim" style="margin-top:auto;font:400 10px var(--s)">Zap carries no channels of its own. It lists public streams from iptv-org and Radio Browser. Takedown contact: takedown@example.com</div></div>
+<div class="fast"><span class="a">Find</span><span class="b">Remote</span><span class="c">TV</span><span class="d">Radio</span></div></div><figcaption>8 · Settings + disclaimer</figcaption></figure>
+
+<figure><div class="ph"><div class="hd"><span class="p">P404</span><b>PROBLEM</b></div>
+<div class="ttl r">OFFLINE</div>
+<div class="body"><div class="msg"><span class="t-r">CAN’T REACH LIVING ROOM TV</span><br><span class="dim" style="font:400 11px var(--s)">It may be off or on a different Wi-Fi. Zap tries again every 5 seconds.</span></div>
+<div class="ttl y" style="margin:10px -12px 4px;font-size:26px">STREAM STOPPED</div>
+<div class="msg y"><span class="t-y">TRYING STREAM 2 OF 2</span><br><span class="dim" style="font:400 11px var(--s)">France 24 English</span></div>
+<div class="btnk o" style="margin-top:6px">HIDE THIS CHANNEL</div><div style="margin-top:auto" class="btnk">TRY AGAIN NOW</div></div>
+<div class="fast"><span class="a">Find</span><span class="b">Remote</span><span class="c">TV</span><span class="d">Radio</span></div></div><figcaption>9 · Offline + dead stream</figcaption></figure>
+</div>
+
+<h2>TV app</h2>
+<div class="row">
+<figure><div class="tv"><div class="vid"></div><div class="lw"><span class="p">201</span><span class="nm">France 24 English<small>LIVE · NEWS · SENT FROM SAM’S PHONE</small></span><span class="l">● LIVE</span></div></div><figcaption>T1 · Full-screen player</figcaption></figure>
+<figure><div class="tv"><div class="tp"><div class="h"><span class="p">P200</span><span>ZAP</span><span class="t">06 Nov 07:41</span></div><div class="tt">LIVE TV</div>
+<div class="ln"><span class="n">200</span><span class="x">DW English</span><span class="z">NEWS</span></div>
+<div class="ln foc"><span class="n">201</span><span class="x">France 24 English</span><span class="z">NEWS</span></div>
+<div class="ln"><span class="n">202</span><span class="x">NASA TV</span><span class="t-y">NOT 24/7</span></div>
+<div class="ln"><span class="n">203</span><span class="x">Al Jazeera English</span><span class="z">NEWS</span></div>
+<div class="fast"><span class="a">Home</span><span class="b">Radio</span><span class="c on">TV</span><span class="d">Saved</span></div></div></div><figcaption>T2 · Channel list (D-pad focus)</figcaption></figure>
+<figure><div class="tv"><div class="tp"><div class="h"><span class="p">P301</span><span>ZAP RADIO</span></div><div class="tt" style="background:var(--c);color:var(--k)">NOW PLAYING</div>
+<div style="font-size:50px;color:var(--y);line-height:1;margin-top:10px">SomaFM Groove Salad</div><div style="font-size:24px;margin-top:6px">AMBIENT · 128 KBPS</div><div class="t-c" style="font:400 11px var(--s);margin-top:6px">SENT FROM SAM’S PHONE</div>
+<div class="fast"><span class="a">Home</span><span class="b">Radio</span><span class="c">TV</span><span class="d">Saved</span></div></div></div><figcaption>T3 · Radio now playing</figcaption></figure>
+<figure><div class="tv"><div class="vid"></div><div class="lw"><span class="p" style="background:var(--r);color:#fff">!</span><span class="nm">This stream stopped<small>TRYING ANOTHER STREAM FOR FRANCE 24 ENGLISH…</small></span></div></div><figcaption>T4 · Dead-stream fallback</figcaption></figure>
+</div>
+<p class="dis">Pairing PIN screen on the TV: page P110, the 6-character code in 120px yellow block type on blue, “Enter this code in Zap on your phone.”</p>
+</body></html>

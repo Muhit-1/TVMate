@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zap — Design B v2: Tuner Dial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Icons: Lucide (ISC licence), inlined. Fonts: Barlow Condensed (display, numerals), Inter (UI text), IBM Plex Mono (data). */
+:root{
+  --bg:#D8D5CE; --panel:#E8E5DF; --face:#F4F2EE; --ink:#1C1B19; --ink2:#46433D; --mute:#6F6B63; --line:#C6C2B9;
+  --or:#D9500A; --or-d:#A83C04; --grn:#2F7D4B; --red:#B3321F; --amb:#B7791F;
+  --disp:'Barlow Condensed','Arial Narrow',sans-serif; --ui:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --raise:0 1px 0 #fff9 inset,0 1px 2px #0003,0 3px 8px #0001; --sink:inset 0 2px 4px #0002,0 1px 0 #fff9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-.125em}
+body{background:#B9B6AE;color:var(--ink);font:500 15px/1.4 var(--ui);padding:44px 32px 90px;-webkit-font-smoothing:antialiased}
+header.doc{max-width:760px;margin-bottom:8px}
+header.doc h1{font:700 64px/.95 var(--disp);text-transform:uppercase;letter-spacing:.01em}
+header.doc p{font:400 13px/1.6 var(--mono);color:#34322d;margin-top:12px}
+.pal{display:flex;gap:8px;margin:18px 0 6px;flex-wrap:wrap}
+.pal span{font:500 11px var(--mono);padding:6px 10px;border-radius:8px;background:var(--c);color:var(--t,#fff);box-shadow:var(--raise)}
+h2{font:600 13px var(--mono);text-transform:uppercase;letter-spacing:.2em;margin:44px 0 18px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:32px}
+figure{display:flex;flex-direction:column;gap:12px}
+figcaption{font:500 12px var(--mono);text-transform:uppercase;letter-spacing:.1em;color:#34322d}
+figcaption b{color:var(--or-d)}
+
+/* ---------- phone frame ---------- */
+.ph{width:320px;height:660px;background:var(--bg);border-radius:38px;border:9px solid var(--ink);overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:0 18px 40px #0004}
+.sb{height:30px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:6px 20px 0;font:600 12px var(--ui)}
+.sb span{display:flex;gap:5px;font-size:14px}
+.app{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 6px;flex:none}
+.app h3{font:700 34px/1 var(--disp);text-transform:uppercase;letter-spacing:.01em}
+.app .sub{font:400 12px var(--mono);color:var(--mute);margin-top:2px;display:block;text-transform:none;letter-spacing:0}
+.ib{width:40px;height:40px;border-radius:50%;background:var(--panel);box-shadow:var(--raise);display:grid;place-items:center;font-size:18px;flex:none}
+.body{flex:1;overflow:hidden;padding:6px 18px 14px;display:flex;flex-direction:column;gap:12px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);padding:8px 10px 12px;background:var(--panel);border-top:1px solid var(--line);flex:none}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font:600 11px var(--ui);color:var(--mute);padding:6px 0;border-radius:14px}
+.nav a .ic{font-size:22px}
+.nav a.on{color:var(--ink);background:var(--face);box-shadow:var(--sink)}.nav a.on .ic{color:var(--or)}
+.led{display:inline-flex;align-items:center;gap:7px;font:500 12px var(--mono);color:var(--ink2)}
+.led:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--or);box-shadow:0 0 7px var(--or)}
+.led.g:before{background:var(--grn);box-shadow:0 0 7px var(--grn)}.led.off:before{background:#8d8a82;box-shadow:none}.led.r:before{background:var(--red);box-shadow:0 0 7px var(--red)}
+.lbl{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--mute)}
+
+/* ---------- controls ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--ink);color:#fff;border-radius:14px;padding:14px;font:600 15px var(--ui);box-shadow:var(--raise)}
+.btn.or{background:var(--or);box-shadow:0 2px 0 var(--or-d),0 4px 10px #d9500a55}
+.btn.o{background:transparent;color:var(--ink);box-shadow:none;border:1.5px solid var(--ink)}
+.btn .ic{font-size:18px}
+.field{display:flex;align-items:center;gap:10px;background:var(--face);border-radius:14px;padding:12px 14px;box-shadow:var(--sink);font:400 15px var(--ui);color:var(--mute)}
+.field .ic{font-size:18px}
+.chips{display:flex;gap:8px;overflow:hidden}
+.chip{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--ui);padding:8px 12px;border-radius:99px;background:var(--panel);box-shadow:var(--raise);white-space:nowrap}
+.chip .ic{font-size:15px}.chip.on{background:var(--ink);color:#fff}.chip.on .ic{color:var(--or)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--face);border-radius:14px;padding:4px;box-shadow:var(--sink)}
+.seg span{text-align:center;padding:9px;border-radius:10px;font:600 14px var(--ui);color:var(--mute)}
+.seg .on{background:var(--ink);color:#fff}
+.pill{display:inline-flex;align-items:center;gap:4px;font:500 11px var(--mono);padding:2px 7px;border-radius:6px;border:1px solid currentColor;text-transform:uppercase;letter-spacing:.03em}
+.pill.a{color:var(--amb)}.pill.r{color:var(--red)}.pill.g{color:var(--grn)}.pill.m{color:var(--mute)}.pill .ic{font-size:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.it{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--panel);border-radius:16px;box-shadow:var(--raise)}
+.it .no{font:600 17px var(--disp);width:34px;color:var(--mute);letter-spacing:.02em}
+.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:700 16px var(--disp);color:#fff;flex:none;letter-spacing:.02em}
+.it p{flex:1;min-width:0}.it strong{display:block;font:600 15px/1.2 var(--ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it small{display:flex;gap:6px;align-items:center;font:400 12px var(--mono);color:var(--mute);margin-top:3px;flex-wrap:wrap}
+.pl{width:38px;height:38px;border-radius:50%;background:var(--or);color:#fff;display:grid;place-items:center;font-size:16px;flex:none;box-shadow:0 2px 0 var(--or-d)}
+.pl.q{background:var(--face);color:var(--mute);box-shadow:var(--sink)}
+.fav{color:var(--or)}.fav .ic{fill:currentColor}
+
+/* ---------- dial ---------- */
+.dial{background:var(--ink);color:#fff;border-radius:16px;padding:12px 14px 10px;position:relative;overflow:hidden;box-shadow:var(--sink)}
+.dial .sc{height:30px;background:repeating-linear-gradient(90deg,#fff6 0 1px,transparent 1px 9px);-webkit-mask:linear-gradient(transparent 45%,#000 45%);mask:linear-gradient(transparent 45%,#000 45%)}
+.dial .sc.l{background:repeating-linear-gradient(90deg,#fff 0 1.5px,transparent 1.5px 45px);margin-top:-30px;-webkit-mask:none;mask:none;height:30px}
+.dial .nums{display:flex;justify-content:space-between;font:500 11px var(--mono);opacity:.75;margin-top:6px}
+.dial:after{content:"";position:absolute;left:58%;top:8px;bottom:8px;width:2px;background:var(--or);box-shadow:0 0 8px var(--or)}
+.dial .read{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.dial .read b{font:600 38px/1 var(--disp);letter-spacing:.02em}.dial .read span{font:400 12px var(--mono);opacity:.75}
+
+/* ---------- remote ---------- */
+.rm{background:var(--panel);border-radius:26px;padding:16px 14px 14px;box-shadow:var(--raise);display:flex;flex-direction:column;align-items:center;gap:14px}
+.rm .top{display:flex;justify-content:space-between;width:100%}
+.rb{width:46px;height:46px;border-radius:50%;background:var(--face);box-shadow:var(--raise);display:grid;place-items:center;font-size:20px}
+.rb.pw{background:var(--ink);color:var(--or)}
+.ring{width:190px;height:190px;border-radius:50%;background:var(--face);box-shadow:var(--sink);position:relative}
+.ring i{position:absolute;display:grid;place-items:center;width:44px;height:44px;font-size:22px}
+.ring .u{top:8px;left:73px}.ring .d{bottom:8px;left:73px}.ring .l{left:8px;top:73px}.ring .r{right:8px;top:73px}
+.ring .ok{left:55px;top:55px;width:80px;height:80px;border-radius:50%;background:var(--or);color:#fff;font:700 24px var(--disp);letter-spacing:.04em;box-shadow:0 3px 0 var(--or-d),0 6px 12px #0004}
+.rr{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.kb{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--face);border-radius:14px;padding:12px 0;font:600 14px var(--ui);box-shadow:var(--raise)}
+.kb .ic{font-size:17px}
+.vr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%}
+.vr .rb{border-radius:14px}
+.vr .lv{text-align:center;font:600 30px/1 var(--disp)}.vr .lv small{display:block;font:500 10px var(--mono);color:var(--mute);letter-spacing:.14em;margin-top:2px}
+.slide{height:8px;border-radius:4px;background:var(--face);box-shadow:var(--sink);position:relative}
+.slide i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--or)}
+.slide b{position:absolute;top:-6px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:var(--raise);transform:translateX(-50%)}
+
+/* ---------- pin ---------- */
+.pin{display:flex;gap:8px;justify-content:center}
+.pin span{width:42px;height:56px;background:var(--face);border-radius:10px;box-shadow:var(--sink);display:grid;place-items:center;font:500 26px var(--mono)}
+.pin .e{outline:2.5px solid var(--or);outline-offset:1px}
+.help{display:flex;gap:10px;padding:12px;border-radius:14px;background:var(--panel);box-shadow:var(--raise);font:400 13px/1.45 var(--ui);color:var(--ink2)}
+.help .ic{font-size:18px;color:var(--or);margin-top:1px}
+
+/* ---------- sheet ---------- */
+.dim{position:absolute;inset:0;background:#1c1b1988}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:26px 26px 0 0;padding:10px 18px 20px;box-shadow:0 -8px 24px #0004;display:flex;flex-direction:column;gap:10px}
+.sheet:before{content:"";width:40px;height:4px;border-radius:2px;background:#8d8a82;margin:0 auto 4px}
+.sheet h4{font:700 26px/1 var(--disp);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.opt{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:14px;background:var(--panel);box-shadow:var(--raise);font:600 15px var(--ui)}
+.opt .ic{font-size:20px;color:var(--ink2)}.opt small{display:block;font:400 12px var(--mono);color:var(--mute);margin-top:1px}
+.opt.on{background:var(--ink);color:#fff}.opt.on .ic,.opt.on small{color:#fff}.opt .ck{margin-left:auto;color:var(--or)}
+.opt.dg{color:var(--red)}.opt.dg .ic{color:var(--red)}
+
+/* ---------- now playing ---------- */
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.hero .no{font:600 15px var(--disp);letter-spacing:.18em;color:var(--or)}
+.hero h5{font:700 38px/.95 var(--disp);text-transform:uppercase}
+.hero small{font:400 12px var(--mono);opacity:.8;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hero .live{display:inline-flex;gap:6px;align-items:center;color:#fff;background:var(--or);padding:2px 8px;border-radius:6px;font:600 11px var(--mono);letter-spacing:.08em}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
+.tr .rb{width:54px;height:54px;font-size:22px}.tr .big{width:76px;height:76px;font-size:30px;background:var(--or);color:#fff;box-shadow:0 3px 0 var(--or-d),0 8px 16px #d9500a55}
+.eq{display:flex;gap:4px;align-items:flex-end;height:34px}.eq i{width:6px;background:var(--or);border-radius:2px}
+
+/* ---------- settings ---------- */
+.grp{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:var(--raise)}
+.set{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line);font:600 14px var(--ui)}
+.set:last-child{border:0}.set>.ic:first-child{font-size:19px;color:var(--ink2)}
+.set span.t{flex:1}.set small{display:block;font:400 12px/1.35 var(--mono);color:var(--mute);margin-top:1px;font-weight:400}
+.sw{width:46px;height:26px;border-radius:99px;background:#9b978e;position:relative;flex:none;box-shadow:var(--sink)}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0005}
+.sw.on{background:var(--or)}.sw.on:after{left:23px}
+.set .go{color:var(--mute);font-size:18px}
+.legal{font:400 11px/1.5 var(--mono);color:var(--mute)}
+
+/* ---------- alerts ---------- */
+.al{display:flex;gap:12px;padding:14px;border-radius:16px;background:var(--panel);border-left:5px solid var(--red);box-shadow:var(--raise)}
+.al.am{border-color:var(--amb)}.al .ic{font-size:22px;color:var(--red);margin-top:2px}.al.am .ic{color:var(--amb)}
+.al b{display:block;font:600 15px var(--ui)}.al small{display:block;font:400 13px/1.45 var(--ui);color:var(--ink2);margin-top:3px}
+.bar{height:6px;border-radius:3px;background:var(--face);box-shadow:var(--sink);overflow:hidden}.bar i{display:block;height:100%;width:42%;background:var(--or);border-radius:3px}
+
+/* ---------- TV ---------- */
+.tv{width:600px;aspect-ratio:16/9;background:#161513;border-radius:12px;border:7px solid var(--ink);color:#fff;position:relative;overflow:hidden;box-shadow:0 18px 40px #0004}
+.vid{position:absolute;inset:0;background:radial-gradient(110% 90% at 25% 15%,#56667a,#1a1c20 70%)}
+.vid:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,#0000 0 3px,#0000000d 3px 4px)}
+.ovl{position:absolute;left:20px;right:20px;bottom:18px;background:#1c1b19ee;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:16px}
+.ovl .n{font:700 40px/1 var(--disp);color:var(--or)}.ovl b{font:600 20px var(--ui);display:block}.ovl small{font:400 12px var(--mono);opacity:.8}
+.ovl .live{margin-left:auto;background:var(--or);padding:3px 10px;border-radius:6px;font:600 12px var(--mono);letter-spacing:.08em}
+.tvt{position:absolute;top:16px;right:20px;font:500 13px var(--mono);background:#1c1b19cc;padding:4px 10px;border-radius:8px;display:flex;gap:6px;align-items:center}
+.tvl{position:absolute;inset:0;background:#201f1c;display:grid;grid-template-columns:76px 1fr}
+.tvl nav{background:#171614;display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 0;font-size:22px;color:#aaa}
+.tvl nav span{width:46px;height:46px;border-radius:14px;display:grid;place-items:center}.tvl nav .on{background:var(--or);color:#fff}
+.tvl main{padding:16px 22px;display:flex;flex-direction:column;gap:7px}
+.tvl h4{font:700 26px/1 var(--disp);text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.tvl h4 small{font:400 12px var(--mono);color:#aaa;text-transform:none}
+.tvl .r{display:flex;gap:14px;align-items:center;padding:7px 12px;border-radius:12px;background:#2b2a26;font:600 15px var(--ui)}
+.tvl .r .no{font:600 18px var(--disp);color:#aaa;width:34px}.tvl .r .logo{width:32px;height:32px;border-radius:8px;font-size:12px}
+.tvl .r small{margin-left:auto;font:400 11px var(--mono);color:#aaa;display:flex;gap:6px;align-items:center}
+.tvl .r.f{background:#f4f2ee;color:var(--ink);outline:3px solid var(--or);outline-offset:1px}.tvl .r.f .no,.tvl .r.f small{color:var(--ink2)}
+.rad{position:absolute;inset:0;background:linear-gradient(160deg,#2a2824,#141311);display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 44px}
+.rad .f{font:700 84px/.9 var(--disp);color:var(--or)}.rad b{font:600 26px var(--ui)}.rad small{font:400 13px var(--mono);opacity:.8}
+.big-pin{position:absolute;inset:0;background:#201f1c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.big-pin .c{display:flex;gap:10px}.big-pin .c span{width:56px;height:76px;background:var(--face);color:var(--ink);border-radius:12px;display:grid;place-items:center;font:500 44px var(--mono)}
+.big-pin h4{font:700 30px var(--disp);text-transform:uppercase}.big-pin p{font:400 14px var(--ui);color:#bbb}
+.warn{position:absolute;inset:0;display:grid;place-items:end center;padding-bottom:20px}
+.dis{max-width:720px;font:400 12px/1.6 var(--mono);color:#34322d;margin-top:30px}
+@media(prefers-reduced-motion:no-preference){.eq i{animation:eq 1.1s ease-in-out infinite alternate}.eq i:nth-child(2n){animation-delay:.2s}.eq i:nth-child(3n){animation-delay:.45s}@keyframes eq{to{transform:scaleY(.35)}}.eq i{transform-origin:bottom}}
+</style></head><body>
+
+<header class="doc">
+<h1>Zap</h1>
+<p>Design B v2 — “Tuner Dial”. A 1960s tabletop radio: matte plastic, one orange accent, a real frequency scale. Channels have numbers and a place on the dial, so browsing feels like tuning. Name is a placeholder.</p>
+<div class="pal"><span style="--c:#D8D5CE;--t:#1C1B19">Chassis #D8D5CE</span><span style="--c:#E8E5DF;--t:#1C1B19">Panel #E8E5DF</span><span style="--c:#1C1B19">Ink #1C1B19</span><span style="--c:#D9500A">Dial orange #D9500A</span><span style="--c:#2F7D4B">Locked #2F7D4B</span><span style="--c:#B3321F">Fault #B3321F</span></div>
+<p>Type: Barlow Condensed (headings, channel numbers) · Inter (all UI text) · IBM Plex Mono (data: IPs, bitrates, countries) · Icons: Lucide</p>
+</header>
+
+<h2>Phone</h2>
+<div class="row">
+
+<!-- 1 FIND TV -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Find your TV<span class="sub">Same Wi-Fi as your phone</span></h3><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+  <path d="M8 16H3v5" /></svg></span></div>
+<div class="body">
+<div class="dial"><div class="read"><b>3</b><span>TVs found · scanning</span></div><div class="sc"></div><div class="sc l"></div><div class="nums"><span>192.168.1.1</span><span>.128</span><span>.254</span></div></div>
+<div class="list">
+<div class="it"><span class="logo" style="background:#1C1B19"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2-5 5-5-5" />
+  <rect width="20" height="15" x="2" y="7" rx="2" /></svg></span><p><strong>Living room TV</strong><small>Google TV · 192.168.1.24</small></p><span class="pill g"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="m16 9-5.5 5.5L8 12" /></svg>Paired</span></div>
+<div class="it"><span class="logo" style="background:#46433D"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2-5 5-5-5" />
+  <rect width="20" height="15" x="2" y="7" rx="2" /></svg></span><p><strong>Bedroom TV</strong><small>Android TV · 192.168.1.31</small></p><span class="pill m">Pair</span></div>
+<div class="it"><span class="logo" style="background:#6F6B63"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2-5 5-5-5" />
+  <rect width="20" height="15" x="2" y="7" rx="2" /></svg></span><p><strong>Fire TV Stick</strong><small>Fire TV · 192.168.1.40</small></p><span class="pill m">Pair</span></div></div>
+<div class="help" style="margin-top:auto"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 16v-4" />
+  <path d="M12 8h.01" /></svg><span>Don’t see your TV? Allow <b>Nearby devices</b> for Zap in Android settings, and turn the TV on.</span></div></div>
+<div class="nav"><a class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" x2="10" y1="11" y2="11" />
+  <line x1="8" x2="8" y1="9" y2="13" />
+  <line x1="15" x2="15.01" y1="12" y2="12" />
+  <line x1="18" x2="18.01" y1="10" y2="10" />
+  <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>Remote</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg>TV</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg>Radio</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Saved</a></div></div><figcaption><b>1</b> Find TV</figcaption></figure>
+
+<!-- 2 PAIR -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7" />
+  <path d="M19 12H5" /></svg></span><span class="led">Living room TV</span></div>
+<div class="body"><div><h3 style="font:700 34px/1 var(--disp);text-transform:uppercase">Enter the code</h3><p style="margin-top:8px;color:var(--ink2);font-size:15px">Type the 6 characters shown on your TV. You only do this once. Zap remembers this TV.</p></div>
+<div class="pin" style="margin:10px 0"><span>4</span><span>F</span><span>9</span><span class="e">A</span><span></span><span></span></div>
+<div class="help"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+  <path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg><span>The code is sent only to your TV on your home network.</span></div>
+<div class="led" style="justify-content:center;margin-top:4px">Waiting for the TV to confirm…</div>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:10px"><div class="btn or"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>Pair</div><div class="btn o">Cancel</div></div></div></div><figcaption><b>2</b> PIN pairing</figcaption></figure>
+
+<!-- 3 REMOTE -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Remote<span class="sub">Living room TV</span></h3><span class="led g">Connected</span></div>
+<div class="body"><div class="rm"><div class="top"><span class="rb pw"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10" />
+  <path d="M18.4 6.6a9 9 0 1 1-12.77.04" /></svg></span><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.7.7 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.7.7 0 0 0 11 19.298z" />
+  <path d="m16.5 14.5 5-5" />
+  <path d="m16.5 9.5 5 5" /></svg></span></div>
+<div class="ring"><i class="u"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6" /></svg></i><i class="d"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></i><i class="l"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg></i><i class="r"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg></i><i class="ok">OK</i></div>
+<div class="rr"><span class="kb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5" />
+  <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" /></svg>Back</span><span class="kb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+  <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>Home</span></div>
+<div class="vr"><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg></span><div class="lv">32<small>VOLUME</small></div><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" />
+  <path d="M12 5v14" /></svg></span></div></div>
+<div class="btn o"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 8h.01" />
+  <path d="M12 12h.01" />
+  <path d="M14 8h.01" />
+  <path d="M16 12h.01" />
+  <path d="M18 8h.01" />
+  <path d="M6 8h.01" />
+  <path d="M7 16h10" />
+  <path d="M8 12h.01" />
+  <rect width="20" height="16" x="2" y="4" rx="2" /></svg>Type on TV</div></div>
+<div class="nav"><a class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" x2="10" y1="11" y2="11" />
+  <line x1="8" x2="8" y1="9" y2="13" />
+  <line x1="15" x2="15.01" y1="12" y2="12" />
+  <line x1="18" x2="18.01" y1="10" y2="10" />
+  <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>Remote</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg>TV</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg>Radio</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Saved</a></div></div><figcaption><b>3</b> Remote</figcaption></figure>
+
+<!-- 4 LIVE TV -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Live TV<span class="sub">14,210 channels</span></h3><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H3" />
+  <path d="M12 19H3" />
+  <path d="M14 3v4" />
+  <path d="M16 17v4" />
+  <path d="M21 12h-9" />
+  <path d="M21 19h-5" />
+  <path d="M21 5h-7" />
+  <path d="M8 10v4" />
+  <path d="M8 12H3" /></svg></span></div>
+<div class="body"><div class="field"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" /></svg>Search channels</div>
+<div class="chips"><span class="chip on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></svg>France</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20" />
+  <path d="M6 12h12" />
+  <path d="M9 19h6" /></svg>News</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 8 6 6" />
+  <path d="m4 14 6-6 2-3" />
+  <path d="M2 5h12" />
+  <path d="M7 2h1" />
+  <path d="m22 22-5-10-5 10" />
+  <path d="M14 18h6" /></svg>English</span></div>
+<div class="list">
+<div class="it"><span class="no">101</span><span class="logo" style="background:#B3321F">F24</span><p><strong>France 24 English</strong><small>FR · News <span class="pill m">HD</span></small></p><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="no">102</span><span class="logo" style="background:#1E5AA8">DW</span><p><strong>DW English</strong><small>DE · News</small></p><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="no">103</span><span class="logo" style="background:#46433D">NASA</span><p><strong>NASA TV</strong><small>US <span class="pill a"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 6v6l4 2" /></svg>Not 24/7</span></small></p><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="no">104</span><span class="logo" style="background:#2F7D4B">AJ</span><p><strong>Al Jazeera English</strong><small>QA <span class="pill r"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M4.929 4.929 19.07 19.071" /></svg>Geo-blocked</span></small></p><span class="pl q"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+</div></div>
+<div class="nav"><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" x2="10" y1="11" y2="11" />
+  <line x1="8" x2="8" y1="9" y2="13" />
+  <line x1="15" x2="15.01" y1="12" y2="12" />
+  <line x1="18" x2="18.01" y1="10" y2="10" />
+  <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>Remote</a><a class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg>TV</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg>Radio</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Saved</a></div></div><figcaption><b>4</b> Browse TV</figcaption></figure>
+
+<!-- 5 FILTER SHEET -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Live TV<span class="sub">14,210 channels</span></h3><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H3" />
+  <path d="M12 19H3" />
+  <path d="M14 3v4" />
+  <path d="M16 17v4" />
+  <path d="M21 12h-9" />
+  <path d="M21 19h-5" />
+  <path d="M21 5h-7" />
+  <path d="M8 10v4" />
+  <path d="M8 12H3" /></svg></span></div>
+<div class="body"><div class="field"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" /></svg>Search channels</div><div class="list"><div class="it"><span class="no">101</span><span class="logo" style="background:#B3321F">F24</span><p><strong>France 24 English</strong></p></div></div></div>
+<div class="dim"></div>
+<div class="sheet"><h4>Filter <span class="ib" style="width:34px;height:34px;font-size:16px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18" />
+  <path d="m6 6 12 12" /></svg></span></h4>
+<span class="lbl">Country</span>
+<div class="field"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" /></svg>Search countries</div>
+<div class="opt on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></svg>France<small>1,284 channels</small><span class="ck"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></div>
+<div class="opt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></svg>Germany<small>962 channels</small></div>
+<div class="opt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></svg>United States<small>3,410 channels</small></div>
+<span class="lbl" style="margin-top:4px">Show</span>
+<div class="chips"><span class="chip on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>Not 24/7</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M4.929 4.929 19.07 19.071" /></svg>Geo-blocked</span></div>
+<div class="btn or">Show 1,284 channels</div></div></div><figcaption><b>5</b> Filter sheet</figcaption></figure>
+
+<!-- 6 RADIO -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Radio<span class="sub">38,640 stations</span></h3><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H3" />
+  <path d="M12 19H3" />
+  <path d="M14 3v4" />
+  <path d="M16 17v4" />
+  <path d="M21 12h-9" />
+  <path d="M21 19h-5" />
+  <path d="M21 5h-7" />
+  <path d="M8 10v4" />
+  <path d="M8 12H3" /></svg></span></div>
+<div class="body"><div class="dial"><div class="read"><b>88.1</b><span>SomaFM Groove Salad</span></div><div class="sc"></div><div class="sc l"></div><div class="nums"><span>88</span><span>98</span><span>108 MHz</span></div></div>
+<div class="field"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" /></svg>Search stations</div>
+<div class="chips"><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+  <path d="M2 12h20" /></svg>Country</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 8 6 6" />
+  <path d="m4 14 6-6 2-3" />
+  <path d="M2 5h12" />
+  <path d="M7 2h1" />
+  <path d="m22 22-5-10-5 10" />
+  <path d="M14 18h6" /></svg>Language</span><span class="chip on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16V3a1 1 0 0 0-1.28-.96l-10 2.917a1 1 0 0 0-.72.96V19" />
+  <circle cx="18" cy="16" r="3" />
+  <circle cx="6" cy="19" r="3" /></svg>Jazz</span></div>
+<div class="list">
+<div class="it"><span class="no">88.1</span><p><strong>SomaFM Groove Salad</strong><small>US · Ambient <span class="pill m">128k</span></small></p><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="no">93.5</span><p><strong>Radio Paradise</strong><small>US · Eclectic <span class="pill m">320k</span></small></p><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="no">96.2</span><p><strong>KEXP 90.3</strong><small>US · Indie <span class="pill m">128k</span></small></p><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div></div></div>
+<div class="nav"><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" x2="10" y1="11" y2="11" />
+  <line x1="8" x2="8" y1="9" y2="13" />
+  <line x1="15" x2="15.01" y1="12" y2="12" />
+  <line x1="18" x2="18.01" y1="10" y2="10" />
+  <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>Remote</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg>TV</a><a class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg>Radio</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Saved</a></div></div><figcaption><b>6</b> Browse radio</figcaption></figure>
+
+<!-- 7 SAVED -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Saved<span class="sub">Quick access</span></h3></div>
+<div class="body"><div class="seg"><span class="on">Favorites</span><span>Recent</span></div>
+<div class="list">
+<div class="it"><span class="logo" style="background:#B3321F">F24</span><p><strong>France 24 English</strong><small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2-5 5-5-5" />
+  <rect width="20" height="15" x="2" y="7" rx="2" /></svg> TV · 101</small></p><span class="fav"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg></span><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="logo" style="background:#1E5AA8">DW</span><p><strong>DW English</strong><small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2-5 5-5-5" />
+  <rect width="20" height="15" x="2" y="7" rx="2" /></svg> TV · 102</small></p><span class="fav"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg></span><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="logo" style="background:#1C1B19"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg></span><p><strong>SomaFM Groove Salad</strong><small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg> Radio · 88.1</small></p><span class="fav"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg></span><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div>
+<div class="it"><span class="logo" style="background:#1C1B19"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg></span><p><strong>BBC World Service</strong><small><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg> Radio · 94.9</small></p><span class="fav"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg></span><span class="pl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></svg></span></div></div>
+<div class="help" style="margin-top:auto"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+  <path d="M3 3v5h5" />
+  <path d="M12 7v5l4 2" /></svg><span>Recent items appear here after you play something. Last 30 are kept.</span></div></div>
+<div class="nav"><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" x2="10" y1="11" y2="11" />
+  <line x1="8" x2="8" y1="9" y2="13" />
+  <line x1="15" x2="15.01" y1="12" y2="12" />
+  <line x1="18" x2="18.01" y1="10" y2="10" />
+  <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>Remote</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg>TV</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg>Radio</a><a class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Saved</a></div></div><figcaption><b>7</b> Favorites + recent</figcaption></figure>
+
+<!-- 8 PLAYING TV -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></span><span class="led g">Playing on Living room TV</span></div>
+<div class="body"><div class="hero"><span class="no">CHANNEL 101</span><h5>France 24 English</h5><small><span class="live">● LIVE</span>FR · News · HD</small></div>
+<div class="chips"><span class="chip on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+  <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+  <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>Stream 1 of 2</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Favorite</span></div>
+<div class="tr"><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" />
+  <path d="M3 20V4" /></svg></span><span class="rb big"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="3" width="5" height="18" rx="1" />
+  <rect x="5" y="3" width="5" height="18" rx="1" /></svg></span><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4v16" />
+  <path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" /></svg></span></div>
+<div><span class="lbl">TV volume</span><div style="display:flex;gap:10px;align-items:center;margin-top:12px"><span style="font-size:20px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
+  <path d="M16 9a5 5 0 0 1 0 6" />
+  <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg></span><div class="slide" style="flex:1"><i style="width:48%"></i><b style="left:48%"></b></div><b style="font:600 20px var(--disp)">32</b></div></div>
+<div class="btn o" style="margin-top:auto"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+  <path d="M12 18h.01" /></svg>Play on this phone instead</div></div></div><figcaption><b>8</b> Control TV playback</figcaption></figure>
+
+<!-- 9 PLAYING RADIO -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><span class="ib"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></span><span class="led g">Playing on Living room TV</span></div>
+<div class="body"><div class="hero"><span class="no">88.1 MHZ</span><h5>SomaFM Groove Salad</h5><small>US · Ambient · 128 kbps</small><div class="eq"><i style="height:18px"></i><i style="height:32px"></i><i style="height:22px"></i><i style="height:34px"></i><i style="height:14px"></i><i style="height:28px"></i><i style="height:20px"></i><i style="height:30px"></i><i style="height:16px"></i></div></div>
+<div class="dial"><div class="sc"></div><div class="sc l"></div><div class="nums"><span>88</span><span>98</span><span>108</span></div></div>
+<div class="tr"><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" />
+  <path d="M3 20V4" /></svg></span><span class="rb big"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="14" y="3" width="5" height="18" rx="1" />
+  <rect x="5" y="3" width="5" height="18" rx="1" /></svg></span><span class="rb"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4v16" />
+  <path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" /></svg></span></div>
+<div style="display:flex;gap:10px;align-items:center"><span style="font-size:20px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" />
+  <path d="M16 9a5 5 0 0 1 0 6" />
+  <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></svg></span><div class="slide" style="flex:1"><i style="width:48%"></i><b style="left:48%"></b></div><b style="font:600 20px var(--disp)">32</b></div>
+<div class="chips" style="margin-top:auto"><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Favorite</span><span class="chip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+  <path d="M12 18h.01" /></svg>On phone</span></div></div></div><figcaption><b>9</b> Control radio</figcaption></figure>
+
+<!-- 10 OPTIONS SHEET -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Live TV<span class="sub">14,210 channels</span></h3></div>
+<div class="body"><div class="list"><div class="it"><span class="no">101</span><span class="logo" style="background:#B3321F">F24</span><p><strong>France 24 English</strong></p></div><div class="it"><span class="no">102</span><span class="logo" style="background:#1E5AA8">DW</span><p><strong>DW English</strong></p></div></div></div>
+<div class="dim"></div>
+<div class="sheet"><h4>France 24 English</h4>
+<div class="opt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>Add to favorites</div>
+<span class="lbl" style="margin-top:2px">Stream</span>
+<div class="opt on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+  <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+  <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>Stream 1<small>1080p · HLS</small><span class="ck"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></span></div>
+<div class="opt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+  <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+  <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></svg>Stream 2<small>720p · needs referrer header</small></div>
+<div class="opt dg"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+  <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+  <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+  <path d="m2 2 20 20" /></svg>Hide this channel<small>Undo in Settings → Hidden channels</small></div></div></div><figcaption><b>10</b> Channel options</figcaption></figure>
+
+<!-- 11 SETTINGS -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M2 8.82a15 15 0 0 1 20 0" />
+  <path d="M5 12.859a10 10 0 0 1 14 0" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Settings</h3></div>
+<div class="body" style="gap:10px">
+<div class="grp"><div class="set"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2-5 5-5-5" />
+  <rect width="20" height="15" x="2" y="7" rx="2" /></svg><span class="t">Living room TV<small>Paired · 192.168.1.24</small></span><span class="go"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg></span></div></div>
+<span class="lbl">Channel list</span>
+<div class="grp"><div class="set"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M4.929 4.929 19.07 19.071" /></svg><span class="t">Show geo-blocked<small>May not play in your country</small></span><span class="sw"></span></div>
+<div class="set"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 6v6l4 2" /></svg><span class="t">Show not 24/7<small>Channels that go off-air</small></span><span class="sw on"></span></div>
+<div class="set"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg><span class="t">Hide adult channels<small>On by default</small></span><span class="sw on"></span></div>
+<div class="set"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+  <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+  <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+  <path d="m2 2 20 20" /></svg><span class="t">Hidden channels<small>12 hidden by you</small></span><span class="go"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg></span></div></div>
+<span class="lbl">Data</span>
+<div class="grp"><div class="set"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+  <path d="M8 16H3v5" /></svg><span class="t">Refresh lists daily<small>Last updated today 06:00</small></span><span class="sw on"></span></div></div>
+<p class="legal" style="margin-top:auto">Zap carries no channels of its own. It lists public streams from iptv-org and Radio Browser. Takedown requests: takedown@example.com</p></div>
+<div class="nav"><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="6" x2="10" y1="11" y2="11" />
+  <line x1="8" x2="8" y1="9" y2="13" />
+  <line x1="15" x2="15.01" y1="12" y2="12" />
+  <line x1="18" x2="18.01" y1="10" y2="10" />
+  <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>Remote</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg>TV</a><a><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg>Radio</a><a class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+  <circle cx="12" cy="12" r="3" /></svg>Settings</a></div></div><figcaption><b>11</b> Settings + disclaimer</figcaption></figure>
+
+<!-- 12 ERRORS -->
+<figure><div class="ph"><div class="sb"><b>07:41</b><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h.01" />
+  <path d="M7 20v-4" />
+  <path d="M12 20v-8" />
+  <path d="M17 20V8" />
+  <path d="M22 4v16" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+  <path d="M5 12.859a10 10 0 0 1 5.17-2.69" />
+  <path d="M19 12.859a10 10 0 0 0-2.007-1.523" />
+  <path d="M2 8.82a15 15 0 0 1 4.177-2.643" />
+  <path d="M22 8.82a15 15 0 0 0-11.288-3.764" />
+  <path d="m2 2 20 20" /></svg><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 10v4" />
+  <path d="M14 10v4" />
+  <path d="M22 14v-4" />
+  <path d="M6 10v4" />
+  <rect x="2" y="6" width="16" height="12" rx="2" /></svg></span></div>
+<div class="app"><h3>Remote<span class="sub">Living room TV</span></h3><span class="led r">Offline</span></div>
+<div class="body"><div class="al"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01" />
+  <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+  <path d="M5 12.859a10 10 0 0 1 5.17-2.69" />
+  <path d="M19 12.859a10 10 0 0 0-2.007-1.523" />
+  <path d="M2 8.82a15 15 0 0 1 4.177-2.643" />
+  <path d="M22 8.82a15 15 0 0 0-11.288-3.764" />
+  <path d="m2 2 20 20" /></svg><div><b>Can’t reach Living room TV</b><small>It may be off, or on a different Wi-Fi. Zap tries again every 5 seconds.</small></div></div>
+<div class="bar"><i></i></div>
+<div class="btn or"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+  <path d="M8 16H3v5" /></svg>Try again now</div>
+<span class="lbl" style="margin-top:8px">When a stream fails</span>
+<div class="al am"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" /></svg><div><b>This stream stopped</b><small>Trying stream 2 of 2 for France 24 English…</small></div></div>
+<div class="btn o"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+  <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+  <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+  <path d="m2 2 20 20" /></svg>Hide this channel</div>
+<div class="help" style="margin-top:auto"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 16v-4" />
+  <path d="M12 8h.01" /></svg><span>If every stream fails, Zap tells you and keeps the channel in your list.</span></div></div></div><figcaption><b>12</b> Offline + dead stream</figcaption></figure>
+</div>
+
+<h2>TV app</h2>
+<div class="row">
+<figure><div class="tv"><div class="vid"></div><div class="tvt"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+  <path d="M12 18h.01" /></svg>Sent from Sam’s phone</div><div class="ovl"><span class="n">101</span><div><b>France 24 English</b><small>FR · News · Stream 1 of 2</small></div><span class="live">● LIVE</span></div></div><figcaption><b>T1</b> Full-screen player</figcaption></figure>
+
+<figure><div class="tv"><div class="tvl"><nav><span class="on"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg></span><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" />
+  <path d="M19.075 4.933a10 10 0 0 1 0 14.134" />
+  <path d="M4.925 19.067a10 10 0 0 1 0-14.134" />
+  <path d="M7.753 16.239a6 6 0 0 1 0-8.478" />
+  <circle cx="12" cy="12" r="2" /></svg></span><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg></span><span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+  <circle cx="12" cy="12" r="3" /></svg></span></nav>
+<main><h4>Live TV<small>14,210 channels · France</small></h4>
+<div class="r"><span class="no">100</span><span class="logo" style="background:#1E5AA8">DW</span>DW English<small>DE · News</small></div>
+<div class="r f"><span class="no">101</span><span class="logo" style="background:#B3321F">F24</span>France 24 English<small>FR · News</small></div>
+<div class="r"><span class="no">102</span><span class="logo" style="background:#46433D">NASA</span>NASA TV<small><span class="pill a"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" />
+  <path d="M12 6v6l4 2" /></svg>Not 24/7</span></small></div>
+<div class="r"><span class="no">103</span><span class="logo" style="background:#2F7D4B">AJ</span>Al Jazeera English<small>QA · News</small></div>
+<div class="r"><span class="no">104</span><span class="logo" style="background:#7a4a1c">EN</span>Euronews English<small>FR · News</small></div></main></div></div><figcaption><b>T2</b> Channel list (D-pad focus)</figcaption></figure>
+
+<figure><div class="tv"><div class="rad"><div class="f">88.1</div><div><b>SomaFM Groove Salad</b><br><small>Ambient · 128 kbps · Sent from Sam’s phone</small></div><div class="eq" style="height:40px"><i style="height:20px"></i><i style="height:38px"></i><i style="height:26px"></i><i style="height:40px"></i><i style="height:18px"></i><i style="height:34px"></i><i style="height:24px"></i><i style="height:36px"></i><i style="height:16px"></i><i style="height:30px"></i><i style="height:22px"></i><i style="height:38px"></i></div></div></div><figcaption><b>T3</b> Radio now playing</figcaption></figure>
+
+<figure><div class="tv"><div class="big-pin"><span style="font-size:36px;color:var(--or)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10" />
+  <rect width="20" height="14" x="2" y="3" rx="2" /></svg></span><h4>Pair with your phone</h4><div class="c"><span>4</span><span>F</span><span>9</span><span>A</span><span>2</span><span>7</span></div><p>Open Zap on your phone and enter this code.</p></div></div><figcaption><b>T4</b> Pairing code</figcaption></figure>
+
+<figure><div class="tv"><div class="vid"></div><div class="ovl" style="border-left:6px solid var(--amb)"><span class="n" style="color:var(--amb);font-size:34px"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" /></svg></span><div><b>This stream stopped</b><small>Trying another stream for France 24 English…</small></div></div></div><figcaption><b>T5</b> Dead-stream fallback</figcaption></figure>
+</div>
+<p class="dis">Phone screens: Remote buttons follow Android TV Remote v2 (D-pad, OK, Back, Home, Volume, Mute, Power). Icons by Lucide (ISC licence).</p>
+</body></html>
